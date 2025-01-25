@@ -25,16 +25,6 @@ import com.google.gson.Gson;
 
 public class YcfuncApplication {
 
-	public static class KeyInfo {
-
-		public String id;
-		public String service_account_id;
-		public String private_key;
-		public Date created_at;
-		public String key_algorithm;
-		public String public_key;
-	}
-
 	public static void main(String[] args) throws Exception {
 		myFunc();
 //		System.out.println(changeJwt());
@@ -42,12 +32,12 @@ public class YcfuncApplication {
 
 	private static String getToken() throws Exception {
 
-		String content = new String(Files.readAllBytes(Paths.get("authorized_key.json")));
-		KeyInfo keyInfo = (new ObjectMapper()).readValue(content, KeyInfo.class);
+		String autorizedKey = new String(Files.readAllBytes(Paths.get("authorized_key.json")));
+		KeyEntity keyEntity = (new ObjectMapper()).readValue(autorizedKey, KeyEntity.class);
 
-		String privateKeyString = keyInfo.private_key;
-		String serviceAccountId = keyInfo.service_account_id;
-		String keyId = keyInfo.id;
+		String privateKeyString = keyEntity.private_key;
+		String serviceAccountId = keyEntity.service_account_id;
+		String keyId = keyEntity.id;
 
 		PemObject privateKeyPem;
 		try (PemReader reader = new PemReader(new StringReader(privateKeyString))) {
@@ -83,9 +73,10 @@ public class YcfuncApplication {
 		HttpClient client = HttpClient.newHttpClient();
 
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-		Gson gson = new Gson();
+//		Gson gson = new Gson();
+//		IamEntity iamEntity = gson.fromJson(response.body(), IamEntity.class);
 
-		IamEntity iamEntity = gson.fromJson(response.body(), IamEntity.class);
+		IamEntity iamEntity = (new ObjectMapper()).readValue(response.body(), IamEntity.class);
 
 		return iamEntity.getIamToken();
 	}
@@ -98,7 +89,6 @@ public class YcfuncApplication {
 				.uri(uri)
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Accept", "text/html")
-//				.header("Authorization", "Bearer t1.9euelZrIm5OKzoyUys-WkZaTycyUk-3rnpWajpKQmIqenpWOzJ6OnpfKmpjl8_dHTzBD-e9cMXQn_t3z9wd-LUP571wxdCf-zef1656Vmo6dlMeNm5yRx56ZzIrIjIqP7_zF656Vmo6dlMeNm5yRx56ZzIrIjIqP.pdNKJg49-M6-VIW6GwEgISkR-iN26w8e95aPRi0ucNaRW5FWKXACfFGUR5suR3tc9hHYBx84BfRZxDnRU_RFAw")
 				.header("Authorization", "Bearer " + changeJwt())
 				.build();
 

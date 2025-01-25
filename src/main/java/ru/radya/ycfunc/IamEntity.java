@@ -9,12 +9,7 @@ public class IamEntity {
         this.expiresAt = expiresAt;
     }
 
-    public void setIamToken(String iamToken) {
-        this.iamToken = iamToken;
-    }
-
-    public void setExpiresAt(String expiresAt) {
-        this.expiresAt = expiresAt;
+    public IamEntity() {
     }
 
     public String getIamToken() {
